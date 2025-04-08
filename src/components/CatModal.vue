@@ -1,4 +1,3 @@
-<!-- src/components/CatModal.vue -->
 <template>
   <div class="modal" @click.self="close">
     <div class="modal-content">

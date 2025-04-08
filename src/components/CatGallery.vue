@@ -1,16 +1,13 @@
 <template>
   <div>
-    <!-- Loader -->
     <div v-if="isLoading" class="loader">Ładowanie...</div>
     
-    <!-- Galeria -->
     <div id="gallery" v-if="!isLoading">
       <div v-for="(image, index) in catImages" :key="index" class="cat-item">
         <img :src="image.url" :alt="'cat ' + index" @click="openModal(image)" />
       </div>
     </div>
 
-    <!-- Modal -->
     <div v-if="isModalOpen" class="modal" @click="closeModal">
       <img :src="modalImage.url" alt="Cat in modal" />
     </div>
@@ -28,7 +25,7 @@ const modalImage = ref({});
 
 const fetchCats = async () => {
   const data = await CatService.getCats();
-  catImages.value = data;
+  catImages.value = data.slice(0, 6);  
   isLoading.value = false;
 };
 
@@ -73,11 +70,10 @@ onMounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: 1000;
 }
 
 .modal img {

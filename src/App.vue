@@ -1,13 +1,18 @@
 <template>
   <div id="gallery">
-    <div v-for="(image, index) in sortedImages" :key="index" class="cat-item">
-      <img :src="image.url" :alt="'cat ' + index" @click="openModal(image)" />
+    <div class="section">
+      <div v-for="(image, index) in catImages" :key="index" class="cat-item" :class="getImageClass(index)">
+        <img :src="image.url" :alt="'cat ' + index" @click="openModal(image)" loading="lazy" />
+      </div>
     </div>
-    <button class="refresh-btn" @click="refreshPage">Odśwież stronę</button>
+    <button class="refresh-btn" @click="refreshPage">Odśwież koty</button>
   </div>
 
   <div v-if="isModalOpen" class="modal" @click="closeModal">
-    <img :src="modalImage.url" alt="Cat in modal" />
+    <div class="modal-content" @click.stop>
+      <span class="close-button" @click="closeModal">×</span>
+      <img :src="modalImage.url" alt="Cat in modal" class="modal-img" />
+    </div>
   </div>
 </template>
 
@@ -18,17 +23,10 @@ import CatService from './services/CatService';
 const catImages = ref([]);
 const isModalOpen = ref(false);
 const modalImage = ref({});
-const sortedImages = ref([]);
 
 const fetchCats = async () => {
   const data = await CatService.getCats();
-  catImages.value = data;
-  sortImagesByHeight();
-};
-
-const sortImagesByHeight = () => {
-  // Sortowanie obrazków po wysokości
-  sortedImages.value = [...catImages.value].sort((a, b) => a.height - b.height);
+  catImages.value = data.slice(0, 6);
 };
 
 const openModal = (image: { url: string }) => {
@@ -40,13 +38,17 @@ const closeModal = () => {
   isModalOpen.value = false;
 };
 
-const refreshPage = () => {
-  location.reload();
-};
+const refreshPage = () => location.reload();
 
-onMounted(() => {
-  fetchCats();
-});
+onMounted(fetchCats);
+
+const getImageClass = (index: number) => {
+  if (index === 0) return 'left';
+  if (index === 2) return 'right';
+  if (index === 3) return 'top';
+  if (index === 5) return 'bottom';
+  return '';
+};
 </script>
 
 <style scoped>
@@ -58,32 +60,69 @@ body {
 }
 
 #gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  grid-auto-rows: auto;
-  gap: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
   padding: 20px;
-  max-width: 80%;
-  margin: 0 auto;
-  background-color: #d1d9e2;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+.section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  width: 100%;
+  max-width: 1200px;
+  background-color: #333333;
+  padding: 10px;
   border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: 80vh;
+  box-sizing: border-box;
+}
+
+.cat-item {
+  display: block;
+  border-radius: 12px;
+  position: relative;
   overflow: hidden;
-  padding-bottom: 60px;
+  background-color: #333333;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .cat-item img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
   border-radius: 12px;
-  cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .cat-item img:hover {
   transform: scale(1.05);
-  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.cat-item.left {
+  justify-content: flex-start;
+}
+
+.cat-item.right {
+  justify-content: flex-end;
+}
+
+.cat-item.top {
+  align-items: flex-start;
+}
+
+.cat-item.bottom {
+  align-items: flex-end;
 }
 
 .modal {
@@ -99,10 +138,35 @@ body {
   z-index: 1000;
 }
 
-.modal img {
-  max-width: 90%;
-  max-height: 80%;
+.modal-content {
+  position: relative;
+  background-color: white;
+  padding: 20px;
   border-radius: 12px;
+}
+
+.modal-img {
+  max-width: 100%;
+  min-height: 70vh;
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 50px;
+  color: #f44336;
+  cursor: pointer;
+  font-weight: bold;
+  z-index: 1100;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.close-button:hover {
+  color: #d32f2f;
+  transform: scale(1.1);
 }
 
 .refresh-btn {
