@@ -10,7 +10,7 @@ This is a simple web application that displays a gallery of cat images, fetched 
 
 ## How to run the project locally:
 1. Clone this repository:
-   git clone https://github.com/yourusername/cat-gallery.git
+   git clone https://github.com/DawidTwardy/cat-gallery.git
 2. Install dependencies:
     npm install
 3. Start the development server:
